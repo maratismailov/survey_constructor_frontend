@@ -4,8 +4,10 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
+import { injectManifest } from 'rollup-plugin-workbox';
 
 const production = !process.env.ROLLUP_WATCH;
+const workboxConfig = require('./public/workbox-config.js')
 
 function serve() {
 	let server;
@@ -68,7 +70,8 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
+		injectManifest(workboxConfig)
 	],
 	watch: {
 		clearScreen: false
