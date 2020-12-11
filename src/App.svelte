@@ -1,30 +1,20 @@
 <script>
-	export let name;
+  import { Route, active } from "tinro";
+  import Constructor from "./pages/Constructor.svelte";
+  import Survey from "./pages/Survey.svelte"
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+  <div class="scrollmenu">
+    <a href="/" use:active exact>constructor</a>
+    <a href="/survey" use:active exact>survey</a>
+  </div>
 </main>
 
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+<Route path="/">
+  <Constructor />
+</Route>
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>
+<Route path="/survey">
+  <Survey />
+</Route>
