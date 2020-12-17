@@ -2,20 +2,33 @@
   let element = {
     name: "",
     type: "",
-    values: []
+    fields: []
   };
+  let column = {
+    name: "",
+    type: ""
+  };
+  let column_types = ["choose type", "text", "number", "select"];
+  let table_form = false;
+  let type_is_text = false;
+  let type_is_number = false;
+  let type_is_select = false;
+  let type_is_table = false;
+  let element_type = "";
+
   let parsed_body = [];
+  let parsed_table = [];
+  let pretty_element = "";
+  let pretty_survey = "";
   let form_is_active = false;
-  let types = ["choose type", "text", "number", "select"];
+  let table_fields = [];
+  let types = ["choose type", "text", "number", "select", "table"];
   let survey_body = [];
   let add_element;
   const survey_name = "nana";
-  const add_survey_element = () => {
-    form_is_active = true;
-  };
-  const parse_body = () => {
-    parsed_body = survey_body.map(elem => {
-      console.log(elem);
+
+  const parse_body = body => {
+    const parsed = body.map(elem => {
       if (elem.type == "text") {
         return "<div>" + elem.name + "</div><br>" + "<input type='text'/>";
       } else if (elem.type == "select") {
@@ -27,22 +40,66 @@
         );
       } else if (elem.type == "number") {
         return "<div>" + elem.name + "</div><br>" + "<input type='number'/>";
+      } else if (elem.type == "table") {
+        return '<div style="margin-left:25px">' + parse_body(elem.fields) + "</div>";
       }
     });
+    return parsed
   };
   const submit_element = () => {
-    form_is_active = false;
     survey_body.push(element);
+    parsed_table = [];
     survey_body = survey_body;
-    parse_body();
-    parsed_body = parsed_body;
+    parsed_body = parse_body(survey_body);
+    // parsed_body = parsed_body;
     element = {
       name: "",
       type: "",
-      values: []
+      fields: []
+    };
+    column = {
+      name: "",
+      type: ""
     };
   };
+  const show_element = () => {
+    pretty_element = JSON.stringify(element, undefined, 2);
+  };
+  const show_survey = () => {
+    pretty_survey = JSON.stringify(survey_body, undefined, 2);
+  };
+  const add_column = () => {
+    element.fields.push(column);
+    parsed_table = parse_body(element.fields);
+    column = {
+      name: "",
+      type: ""
+    };
+    document.getElementById("select_type").selectedIndex = 0;
+  };
 </script>
+
+<style>
+  .form_element {
+    display: flex;
+  }
+  .form_left {
+    width: 170px;
+  }
+  .form_right {
+    flex-grow: 1;
+  }
+  .table {
+    margin: 5px;
+    margin-left: 25px;
+  }
+  .select_type {
+    display: flex;
+  }
+  .type_radio {
+    margin: 5px;
+  }
+</style>
 
 <h1>Survey name is {survey_name}</h1>
 
@@ -53,23 +110,82 @@
 {/each}
 <hr />
 
-<button on:click={add_survey_element}>add survey element</button>
-<hr />
+<!-- <button on:click={add_survey_element}>add survey element</button> -->
 
-{#if form_is_active}
-  <form on:submit|preventDefault={submit_element}>
-    <div>
-      element name
+<!-- {#if form_is_active} -->
+<form on:submit|preventDefault={submit_element}>
+  <div class="form_element">
+    <div class="form_left">element name</div>
+    <div class="form_right">
       <input bind:value={element.name} type="text" />
     </div>
-    <div>
-      element type
+  </div>
+  <div class="select_type">
+    <label class="type_radio">
+      <input type="radio" bind:group={element.type} value={'text'} />
+      text
+    </label>
+    <label class="type_radio">
+      <input type="radio" bind:group={element.type} value={'number'} />
+      number
+    </label>
+    <label class="type_radio">
+      <input type="radio" bind:group={element.type} value={'select'} />
+      select
+    </label>
+    <label class="type_radio">
+      <input type="radio" bind:group={element.type} value={'table'} />
+      table
+    </label>
+  </div>
+
+  <!-- <div class="form_element">
+    <div class="form_left">element type</div>
+    <div class="form_right">
       <select bind:value={element.type}>
         {#each types as type}
           <option value={type}>{type}</option>
         {/each}
       </select>
     </div>
-    <button type="submit">Submit</button>
-  </form>
+  </div> -->
+
+  <div>
+    {#if element.type == 'table'}
+      <!-- <div class="form_element">
+          <div class="form_left">rows</div>
+          <div class="form_right">
+            <input bind:value={table_rows} type="number" />
+          </div>
+        </div> -->
+
+      <div>fields:</div>
+      <div>
+        <input bind:value={column.name} placeholder="name" type="text" />
+        <select id="select_type" bind:value={column.type}>
+          {#each column_types as type}
+            <option value={type}>{type}</option>
+          {/each}
+        </select>
+        <button type="button" on:click={add_column}>add column</button>
+      </div>
+      {#each parsed_table as table_element}
+        <div class="table">
+          {@html table_element}
+        </div>
+      {/each}
+    {/if}
+  </div>
+  <button type="submit">Submit</button>
+</form>
+<!-- {/if} -->
+<button on:click={show_element}>show element</button>
+<button on:click={show_survey}>show survey</button>
+
+{#if pretty_element}
+  <pre>{pretty_element}</pre>
+{/if}
+
+{#if pretty_survey}
+  <pre>{pretty_survey}</pre>
 {/if}
