@@ -1,11 +1,17 @@
 <script>
   let element = {
-    name: "",
+    id: "",
+    name_ru: "",
+    name_en: "",
+    name_kg: "",
     type: "",
     fields: []
   };
   let column = {
-    name: "",
+    id: "",
+    name_ru: "",
+    name_en: "",
+    name_kg: "",
     type: ""
   };
   let column_types = ["choose type", "text", "number", "select"];
@@ -30,35 +36,64 @@
   const parse_body = body => {
     const parsed = body.map(elem => {
       if (elem.type == "text") {
-        return "<div>" + elem.name + "</div><br>" + "<input type='text'/>";
+        return (
+          "<div>" +
+          elem.id +
+          "</div><div>" +
+          elem.name_ru +
+          "</div><div>" +
+          elem.name_en +
+          "</div><div>" +
+          elem.name_kg +
+          "</div><br>" +
+          "<input type='text'/>"
+        );
       } else if (elem.type == "select") {
         return (
           "<div>" +
           elem.name +
           "</div><br>" +
-          "<select /> <option> option1 </option> <option> option2 </option> </select>"
+          "<select> <option> option1 </option> <option> option2 </option> </select>"
         );
       } else if (elem.type == "number") {
         return "<div>" + elem.name + "</div><br>" + "<input type='number'/>";
       } else if (elem.type == "table") {
-        return '<div style="margin-left:25px">' + parse_body(elem.fields) + "</div>";
+        const regexp_table = /","|\["|"]/g;
+        const cleaned_table = JSON.stringify(parse_body(elem.fields)).replace(
+          regexp_table,
+          ""
+        );
+        console.log(parse_body(elem.fields));
+        return (
+          '<div style="margin-left:35px">' +
+          elem.name +
+          cleaned_table +
+          "</div>"
+        );
       }
     });
-    return parsed
+    return parsed;
   };
   const submit_element = () => {
+    console.log(element);
     survey_body.push(element);
     parsed_table = [];
     survey_body = survey_body;
     parsed_body = parse_body(survey_body);
     // parsed_body = parsed_body;
     element = {
-      name: "",
+      id: "",
+      name_ru: "",
+      name_en: "",
+      name_kg: "",
       type: "",
       fields: []
     };
     column = {
-      name: "",
+      id: "",
+      name_ru: "",
+      name_en: "",
+      name_kg: "",
       type: ""
     };
   };
@@ -115,30 +150,32 @@
 <!-- {#if form_is_active} -->
 <form on:submit|preventDefault={submit_element}>
   <div class="form_element">
-    <div class="form_left">element name</div>
+    <div class="form_left">element id</div>
     <div class="form_right">
-      <input bind:value={element.name} type="text" />
+      <input bind:value={element.id} type="text" />
     </div>
   </div>
-  <div class="select_type">
-    <label class="type_radio">
-      <input type="radio" bind:group={element.type} value={'text'} />
-      text
-    </label>
-    <label class="type_radio">
-      <input type="radio" bind:group={element.type} value={'number'} />
-      number
-    </label>
-    <label class="type_radio">
-      <input type="radio" bind:group={element.type} value={'select'} />
-      select
-    </label>
-    <label class="type_radio">
-      <input type="radio" bind:group={element.type} value={'table'} />
-      table
-    </label>
+
+  <div class="form_element">
+    <div class="form_left">element name ru</div>
+    <div class="form_right">
+      <input bind:value={element.name_ru} type="text" />
+    </div>
   </div>
 
+  <div class="form_element">
+    <div class="form_left">element name en</div>
+    <div class="form_right">
+      <input bind:value={element.name_en} type="text" />
+    </div>
+  </div>
+
+  <div class="form_element">
+    <div class="form_left">element name kg</div>
+    <div class="form_right">
+      <input bind:value={element.name_kg} type="text" />
+    </div>
+  </div>
   <!-- <div class="form_element">
     <div class="form_left">element type</div>
     <div class="form_right">
@@ -161,22 +198,57 @@
 
       <div>fields:</div>
       <div>
+        {#each parsed_table as table_element}
+          <div class="table">
+            {@html table_element}
+          </div>
+        {/each}
         <input bind:value={column.name} placeholder="name" type="text" />
-        <select id="select_type" bind:value={column.type}>
+        <!-- <select id="select_type" bind:value={column.type}>
           {#each column_types as type}
             <option value={type}>{type}</option>
           {/each}
-        </select>
-        <button type="button" on:click={add_column}>add column</button>
-      </div>
-      {#each parsed_table as table_element}
-        <div class="table">
-          {@html table_element}
+        </select> -->
+        <div class="select_type">
+          <label class="type_radio">
+            <input type="radio" bind:group={column.type} value={'text'} />
+            text
+          </label>
+          <label class="type_radio">
+            <input type="radio" bind:group={column.type} value={'number'} />
+            number
+          </label>
+          <label class="type_radio">
+            <input type="radio" bind:group={column.type} value={'select'} />
+            select
+          </label>
+          <button type="button" on:click={add_column}>add column</button>
+          <button type="submit" style="margin-left: 5px">Submit</button>
         </div>
-      {/each}
+      </div>
     {/if}
   </div>
-  <button type="submit">Submit</button>
+  {#if element.type != 'table'}
+    <div class="select_type">
+      <label class="type_radio">
+        <input type="radio" bind:group={element.type} value={'text'} />
+        text
+      </label>
+      <label class="type_radio">
+        <input type="radio" bind:group={element.type} value={'number'} />
+        number
+      </label>
+      <label class="type_radio">
+        <input type="radio" bind:group={element.type} value={'select'} />
+        select
+      </label>
+      <label class="type_radio">
+        <input type="radio" bind:group={element.type} value={'table'} />
+        table
+      </label>
+      <button type="submit">Submit</button>
+    </div>
+  {/if}
 </form>
 <!-- {/if} -->
 <button on:click={show_element}>show element</button>
