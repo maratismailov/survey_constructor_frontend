@@ -1,4 +1,5 @@
 <script>
+  let survey_body = [];
   let element = {
     id: "",
     name_ru: "",
@@ -13,6 +14,14 @@
     name_en: "",
     name_kg: "",
     type: ""
+  };
+  let survey_root = {
+    id: "root",
+    survey_id: "",
+    name_ru: "",
+    name_en: "",
+    name_kg: "",
+    type: "root"
   };
   let column_types = ["choose type", "text", "number", "select"];
   let table_form = false;
@@ -29,7 +38,11 @@
   let form_is_active = false;
   let table_fields = [];
   let types = ["choose type", "text", "number", "select", "table"];
-  let survey_body = [];
+  if (localStorage.getItem("survey_body") !== "") {
+    survey_body = JSON.parse(localStorage.getItem("survey_body"));
+  } else {
+    survey_body = [survey_root];
+  }
   let add_element;
   const survey_name = "nana";
 
@@ -70,6 +83,16 @@
           cleaned_table +
           "</div>"
         );
+      } else if (elem.type == "root") {
+        return (
+          "<h1>Survey id is" +
+          survey_root.survey_id +
+          "</h1><h1>Survey names are " +
+          survey_root.name_ru +
+          survey_root.name_en +
+          survey_root.name_kg +
+          "</h1>"
+        );
       }
     });
     return parsed;
@@ -102,6 +125,13 @@
   };
   const show_survey = () => {
     pretty_survey = JSON.stringify(survey_body, undefined, 2);
+  };
+  const save_survey = () => {
+    console.log(survey_body);
+    localStorage.setItem("survey_body", JSON.stringify(survey_body));
+  };
+  const delete_survey = () => {
+    localStorage.setItem("survey_body", "");
   };
   const add_column = () => {
     element.fields.push(column);
@@ -136,7 +166,8 @@
   }
 </style>
 
-<h1>Survey name is {survey_name}</h1>
+<!-- <h1>Survey id is {survey_root.survey_id}</h1>
+<h1>Survey names are {survey_root.name_ru} {survey_root.name_en} {survey_root.name_kg}</h1> -->
 
 {#each parsed_body as survey_element}
   <div>
@@ -148,6 +179,37 @@
 <!-- <button on:click={add_survey_element}>add survey element</button> -->
 
 <!-- {#if form_is_active} -->
+
+<form on:submit|preventDefault={submit_element}>
+  <div class="form_element">
+    <div class="form_left">survey id</div>
+    <div class="form_right">
+      <input bind:value={survey_root.survey_id} type="text" />
+    </div>
+  </div>
+
+  <div class="form_element">
+    <div class="form_left">survey name ru</div>
+    <div class="form_right">
+      <input bind:value={survey_root.name_ru} type="text" />
+    </div>
+  </div>
+
+  <div class="form_element">
+    <div class="form_left">survey name en</div>
+    <div class="form_right">
+      <input bind:value={survey_root.name_en} type="text" />
+    </div>
+  </div>
+
+  <div class="form_element">
+    <div class="form_left">survey name kg</div>
+    <div class="form_right">
+      <input bind:value={survey_root.name_kg} type="text" />
+    </div>
+  </div>
+</form>
+<hr />
 <form on:submit|preventDefault={submit_element}>
   <div class="form_element">
     <div class="form_left">element id</div>
@@ -253,6 +315,8 @@
 <!-- {/if} -->
 <button on:click={show_element}>show element</button>
 <button on:click={show_survey}>show survey</button>
+<button on:click={save_survey}>save survey</button>
+<button on:click={delete_survey}>delete survey</button>
 
 {#if pretty_element}
   <pre>{pretty_element}</pre>
