@@ -1,4 +1,6 @@
 <script>
+  import Parse from "../functions/Parser.js";
+
   let survey = {
     survey_id: "",
     name_ru: "",
@@ -12,6 +14,7 @@
     name_en: "",
     name_kg: "",
     type: "",
+    value: '',
     fields: []
   };
   let column = {
@@ -19,7 +22,8 @@
     name_ru: "",
     name_en: "",
     name_kg: "",
-    type: ""
+    type: "",
+    value: ''
   };
   let survey_root = {
     id: "root",
@@ -44,7 +48,10 @@
   let form_is_active = false;
   let table_fields = [];
   let types = ["choose type", "text", "number", "select", "table"];
-  if (localStorage.getItem("survey") !== "" && localStorage.getItem("survey") !== null) {
+  if (
+    localStorage.getItem("survey") !== "" &&
+    localStorage.getItem("survey") !== null
+  ) {
     survey = JSON.parse(localStorage.getItem("survey"));
   } else {
     survey = survey;
@@ -52,63 +59,12 @@
   let add_element;
   const survey_name = "nana";
 
-  const parse_body = body => {
-    const parsed = body.map(elem => {
-      if (elem.type == "text") {
-        return (
-          "<div>" +
-          elem.id +
-          "</div><div>" +
-          elem.name_ru +
-          "</div><div>" +
-          elem.name_en +
-          "</div><div>" +
-          elem.name_kg +
-          "</div><br>" +
-          "<input type='text'/>"
-        );
-      } else if (elem.type == "select") {
-        return (
-          "<div>" +
-          elem.name +
-          "</div><br>" +
-          "<select> <option> option1 </option> <option> option2 </option> </select>"
-        );
-      } else if (elem.type == "number") {
-        return "<div>" + elem.name + "</div><br>" + "<input type='number'/>";
-      } else if (elem.type == "table") {
-        const regexp_table = /","|\["|"]/g;
-        const cleaned_table = JSON.stringify(parse_body(elem.fields)).replace(
-          regexp_table,
-          ""
-        );
-        console.log(parse_body(elem.fields));
-        return (
-          '<div style="margin-left:35px">' +
-          elem.name +
-          cleaned_table +
-          "</div>"
-        );
-      } else if (elem.type == "root") {
-        return (
-          "<h1>Survey id is" +
-          survey_root.survey_id +
-          "</h1><h1>Survey names are " +
-          survey_root.name_ru +
-          survey_root.name_en +
-          survey_root.name_kg +
-          "</h1>"
-        );
-      }
-    });
-    return parsed;
-  };
   const submit_element = () => {
     console.log(element);
     survey.survey_body.push(element);
     parsed_table = [];
     survey = survey;
-    parsed_body = parse_body(survey.survey_body);
+    parsed_body = new Parse(survey.survey_body);
     // parsed_body = parsed_body;
     element = {
       id: "",
@@ -116,6 +72,7 @@
       name_en: "",
       name_kg: "",
       type: "",
+      value: '',
       fields: []
     };
     column = {
@@ -123,6 +80,7 @@
       name_ru: "",
       name_en: "",
       name_kg: "",
+      value: '',
       type: ""
     };
   };
@@ -141,9 +99,13 @@
   };
   const add_column = () => {
     element.fields.push(column);
-    parsed_table = parse_body(element.fields);
+    parsed_table = new Parse(element.fields);
     column = {
-      name: "",
+      id: "",
+      name_ru: "",
+      name_en: "",
+      name_kg: "",
+      value: '',
       type: ""
     };
     document.getElementById("select_type").selectedIndex = 0;
@@ -190,28 +152,28 @@
   <div class="form_element">
     <div class="form_left">survey id</div>
     <div class="form_right">
-      <input bind:value={survey_root.survey_id} type="text" />
+      <input bind:value={survey.survey_id} type="text" />
     </div>
   </div>
 
   <div class="form_element">
     <div class="form_left">survey name ru</div>
     <div class="form_right">
-      <input bind:value={survey_root.name_ru} type="text" />
+      <input bind:value={survey.name_ru} type="text" />
     </div>
   </div>
 
   <div class="form_element">
     <div class="form_left">survey name en</div>
     <div class="form_right">
-      <input bind:value={survey_root.name_en} type="text" />
+      <input bind:value={survey.name_en} type="text" />
     </div>
   </div>
 
   <div class="form_element">
     <div class="form_left">survey name kg</div>
     <div class="form_right">
-      <input bind:value={survey_root.name_kg} type="text" />
+      <input bind:value={survey.name_kg} type="text" />
     </div>
   </div>
 </form>
@@ -257,13 +219,6 @@
 
   <div>
     {#if element.type == 'table'}
-      <!-- <div class="form_element">
-          <div class="form_left">rows</div>
-          <div class="form_right">
-            <input bind:value={table_rows} type="number" />
-          </div>
-        </div> -->
-
       <div>fields:</div>
       <div>
         {#each parsed_table as table_element}
@@ -271,13 +226,8 @@
             {@html table_element}
           </div>
         {/each}
-        <input bind:value={column.name} placeholder="name" type="text" />
-        <!-- <select id="select_type" bind:value={column.type}>
-          {#each column_types as type}
-            <option value={type}>{type}</option>
-          {/each}
-        </select> -->
-        <div class="select_type">
+        <input bind:value={column.id} placeholder="name" type="text" />
+        <div id="select_type" class="select_type">
           <label class="type_radio">
             <input type="radio" bind:group={column.type} value={'text'} />
             text
