@@ -8,7 +8,6 @@
   }
   if (localStorage.getItem("surveys") === null) {
     localStorage.setItem('surveys', '[]')
-    console.log(surveys)
     surveys = JSON.parse(localStorage.getItem("surveys"));
   }
   let pretty_survey;
