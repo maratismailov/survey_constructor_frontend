@@ -1,10 +1,15 @@
 <script>
-  import Parse from "../functions/Parser.js";
   import Parsed from '../components/Parsed.svelte'
 
   let survey = [];
+  let surveys = []
   if (localStorage.getItem("survey") !== "") {
     survey = JSON.parse(localStorage.getItem("survey"));
+  }
+  if (localStorage.getItem("surveys") === null) {
+    localStorage.setItem('surveys', '[]')
+    console.log(surveys)
+    surveys = JSON.parse(localStorage.getItem("surveys"));
   }
   let pretty_survey;
   let parsed_body = [];
@@ -18,7 +23,8 @@
   };
 
   const save_survey = () => {
-    localStorage.setItem('survey', JSON.stringify(survey))
+    surveys.push(survey)
+    localStorage.setItem('surveys', JSON.stringify(surveys))
   }
 </script>
 
@@ -49,7 +55,7 @@
     {@html survey_element}
   </div>
 {/each} -->
-<Parsed survey_body={survey.survey_body}/>
+<Parsed survey={survey.survey_body}/>
 
 
 <hr />

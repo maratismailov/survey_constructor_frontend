@@ -1,5 +1,5 @@
 <script>
-  import Parse from "../functions/Parser.js";
+  import Parsed from "../components/Parsed.svelte";
 
   let survey = {
     survey_id: "",
@@ -8,31 +8,27 @@
     name_kg: "",
     survey_body: []
   };
-  let element = {
+  const blank_element = {
     id: "",
     name_ru: "",
     name_en: "",
     name_kg: "",
     type: "",
-    value: '',
+    value: "",
     fields: []
   };
-  let column = {
+  let element = {...blank_element}
+
+  const blank_column = {
     id: "",
     name_ru: "",
     name_en: "",
     name_kg: "",
     type: "",
-    value: ''
+    value: ""
   };
-  let survey_root = {
-    id: "root",
-    survey_id: "",
-    name_ru: "",
-    name_en: "",
-    name_kg: "",
-    type: "root"
-  };
+  let column = {...blank_column}
+
   let column_types = ["choose type", "text", "number", "select"];
   let table_form = false;
   let type_is_text = false;
@@ -60,29 +56,16 @@
   const survey_name = "nana";
 
   const submit_element = () => {
+    console.log("blank", blank_element);
     console.log(element);
     survey.survey_body.push(element);
     parsed_table = [];
     survey = survey;
-    parsed_body = new Parse(survey.survey_body);
+    // parsed_body = new Parse(survey.survey_body);
     // parsed_body = parsed_body;
-    element = {
-      id: "",
-      name_ru: "",
-      name_en: "",
-      name_kg: "",
-      type: "",
-      value: '',
-      fields: []
-    };
-    column = {
-      id: "",
-      name_ru: "",
-      name_en: "",
-      name_kg: "",
-      value: '',
-      type: ""
-    };
+    element = {...blank_element};
+    element.fields = []
+    column = {...blank_column};
   };
   const show_element = () => {
     pretty_element = JSON.stringify(element, undefined, 2);
@@ -91,7 +74,6 @@
     pretty_survey = JSON.stringify(survey, undefined, 2);
   };
   const save_survey = () => {
-    console.log(survey);
     localStorage.setItem("survey", JSON.stringify(survey));
   };
   const delete_survey = () => {
@@ -99,15 +81,7 @@
   };
   const add_column = () => {
     element.fields.push(column);
-    parsed_table = new Parse(element.fields);
-    column = {
-      id: "",
-      name_ru: "",
-      name_en: "",
-      name_kg: "",
-      value: '',
-      type: ""
-    };
+    column = {...blank_column}
     document.getElementById("select_type").selectedIndex = 0;
   };
 </script>
@@ -137,11 +111,7 @@
 <!-- <h1>Survey id is {survey_root.survey_id}</h1>
 <h1>Survey names are {survey_root.name_ru} {survey_root.name_en} {survey_root.name_kg}</h1> -->
 
-{#each parsed_body as survey_element}
-  <div>
-    {@html survey_element}
-  </div>
-{/each}
+<Parsed survey={survey.survey_body} />
 <hr />
 
 <!-- <button on:click={add_survey_element}>add survey element</button> -->
