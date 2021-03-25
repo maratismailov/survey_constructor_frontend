@@ -6,15 +6,15 @@
 
 <main>
   <div class="scrollmenu">
-    <a href="/" use:active exact>constructor</a>
-    <a href="/survey" use:active exact>survey</a>
+    <a href="/rent/surveyeditor" use:active exact>constructor</a>
+    <a href="/rent/surveyeditor/survey" use:active exact>survey</a>
   </div>
 </main>
 
-<Route path="/">
+<Route path="/rent/surveyeditor">
   <Constructor />
 </Route>
 
-<Route path="/survey">
+<Route path="/rent/surveyeditor/survey">
   <Survey />
 </Route>
