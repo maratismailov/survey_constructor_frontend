@@ -1,6 +1,7 @@
 <script>
   import Parsed from "../components/Parsed.svelte";
 
+  let surveys = [];
   let survey = {
     survey_id: "",
     name_ru: "",
@@ -17,7 +18,7 @@
     value: "",
     fields: []
   };
-  let element = {...blank_element}
+  let element = { ...blank_element };
 
   const blank_column = {
     id: "",
@@ -27,7 +28,7 @@
     type: "",
     value: ""
   };
-  let column = {...blank_column}
+  let column = { ...blank_column };
 
   let column_types = ["choose type", "text", "number", "select"];
   let table_form = false;
@@ -52,6 +53,10 @@
   } else {
     survey = survey;
   }
+  if (localStorage.getItem("surveys") === null) {
+    localStorage.setItem("surveys", "[]");
+    surveys = JSON.parse(localStorage.getItem("surveys"));
+  }
   let add_element;
   const survey_name = "nana";
 
@@ -63,15 +68,18 @@
     survey = survey;
     // parsed_body = new Parse(survey.survey_body);
     // parsed_body = parsed_body;
-    element = {...blank_element};
-    element.fields = []
-    column = {...blank_column};
+    element = { ...blank_element };
+    element.fields = [];
+    column = { ...blank_column };
   };
   const show_element = () => {
     pretty_element = JSON.stringify(element, undefined, 2);
   };
   const show_survey = () => {
     pretty_survey = JSON.stringify(survey, undefined, 2);
+  };
+  const save_survey_template = () => {
+    localStorage.setItem("survey", JSON.stringify(survey));
   };
   const save_survey = () => {
     localStorage.setItem("survey", JSON.stringify(survey));
@@ -81,7 +89,7 @@
   };
   const add_column = () => {
     element.fields.push(column);
-    column = {...blank_column}
+    column = { ...blank_column };
     document.getElementById("select_type").selectedIndex = 0;
   };
 </script>
@@ -242,6 +250,7 @@
 <button on:click={show_element}>show element</button>
 <button on:click={show_survey}>show survey</button>
 <button on:click={save_survey}>save survey</button>
+<button on:click={save_survey_template}>save survey template</button>
 <button on:click={delete_survey}>delete survey</button>
 
 {#if pretty_element}
